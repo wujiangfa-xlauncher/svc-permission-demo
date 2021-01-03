@@ -1,0 +1,6 @@
+apiVersion: lstack.k8s.io/v1
+kind: SvcPermission
+metadata:
+  name: test
+spec:
+  userName: kubernetes-admin

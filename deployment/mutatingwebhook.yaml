@@ -1,22 +1,19 @@
 apiVersion: admissionregistration.k8s.io/v1beta1
 kind: MutatingWebhookConfiguration
 metadata:
-  name: sidecar-injector-webhook-cfg
+  name: svcp-webhook-cfg
   labels:
-    app: sidecar-injector
+    app: svcp-webhook
 webhooks:
-- name: sidecar-injector.morven.me
+- name: svcp-webhook.lstack.com
   clientConfig:
     service:
-      name: sidecar-injector-webhook-svc
-      namespace: sidecar-injector
+      name: svcp-webhook
+      namespace: kube-system
       path: "/mutate"
-    caBundle: ${CA_BUNDLE}
+    caBundle: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUN5RENDQWJDZ0F3SUJBZ0lCQURBTkJna3Foa2lHOXcwQkFRc0ZBREFWTVJNd0VRWURWUVFERXdwcmRXSmwKY201bGRHVnpNQjRYRFRJd01EY3pNREEyTXpJMU0xb1hEVE13TURjeU9EQTJNekkxTTFvd0ZURVRNQkVHQTFVRQpBeE1LYTNWaVpYSnVaWFJsY3pDQ0FTSXdEUVlKS29aSWh2Y05BUUVCQlFBRGdnRVBBRENDQVFvQ2dnRUJBTVROClFIN1Exa281WmRxUXFOT1lrQVV0RG5qaGk3OWZGV1d4SjNCZjZ3bzMyT2tRNkpjSVlCY2dlbnNxdmpMb2QrbzUKRGp4dWgyaFp5U25kb0JoNVkyMXFBcWpGWWVTMU95Z1pOTEdkL1RWY2xFTmd6b2ZOK245dWQyTnVWdG9TM25ITAovZk8wTGNGdHFjdHZKbEJGc2FwMUhpQmU0UWtRR0k4S2FjeHZCY3U4ZE0zQ0dyMkVac3dpV25HK3h2Z0xoTGd5CllmcDJsLzBCRS9jQ0ZzQ2VJSEUrVXZSemdnS09vZkxBYlpDb2hhaHgxRWJGbWlhcFFCeHRRR1RBTDlrSGxPNk0KUjhGWmZCbm5MTlBielZYUE5PdWdzdjU3eWNYbm1MOXRmdHRYZ1BITTgwYlN4eFBjYVZ5T1JnLzh2ME5reUlPawp6Y0l1bFovQ2dSUHV4RkxRWTEwQ0F3RUFBYU1qTUNFd0RnWURWUjBQQVFIL0JBUURBZ0trTUE4R0ExVWRFd0VCCi93UUZNQU1CQWY4d0RRWUpLb1pJaHZjTkFRRUxCUUFEZ2dFQkFCWmlqenV0N3R0YkpWRGYzam50WXFCbjg2OTgKdmNvNU92d2U1NGRnUlAzeHIwc3hLSklLNTBRZjJ6YWxlK2tIYzd4V3VwNXNydkgrVVgyendkL2N1T0NWU1hVbApDUzlWZVBDLzl1dHIrRnVQWE1RRU93QUFCZ25KZkJSL216SnYwUGdRTzR1Y3ZjWjZYbThnWUpoTm9PQjFncjBVClZZZTdoeGFkaWpkcnJHMUorVk1aUzNPaXlsMmkwUm5NY2EvNkhrZmJDL1pTZlFaS2U3Rzl4bzc0WWR3Q1lRNEYKR2tLaVU1c3ppb2RXcURBa1gzUFh0dWp5SThlZ295b0xJUHNsVDhaOVEzclJxcms1MG1Gd0JkS1ZLSmpBQkZyQgpGWm00VU5YelBiWC9Dei8rTitTdy9ISWRYUHBzVDhMZ240b3V4WEtpNnRBb3JGSnFHL1ViRGh5Y1RWMD0KLS0tLS1FTkQgQ0VSVElGSUNBVEUtLS0tLQo=
   rules:
   - operations: ["CREATE", "UPDATE"]
     apiGroups: [""]
     apiVersions: ["v1"]
-    resources: ["pods"]
-  namespaceSelector:
-    matchLabels:
-      sidecar-injection: enabled
+    resources: ["services"]

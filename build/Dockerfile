@@ -1,25 +1,11 @@
-FROM alpine:latest
+FROM registry.cn-hangzhou.aliyuncs.com/launcher/alpine:latest
 
-# set labels for metadata
-LABEL maintainer="Morven Cao<morvencao@gmail.com>" \
-  name="sidecar-injector" \
-  description="A Kubernetes mutating webhook server that implements sidecar injection" \
-  summary="A Kubernetes mutating webhook server that implements sidecar injection"
+MAINTAINER wujiangfa <wujiangfa@xlauncher.io>
 
-# set environment variables
-ENV SIDECAR_INJECTOR=/usr/local/bin/sidecar-injector \
-  USER_UID=1001 \
-  USER_NAME=sidecar-injector
+COPY svcp /home/svcp
 
-# install sidecar-injector binary
-COPY build/_output/bin/sidecar-injector ${SIDECAR_INJECTOR}
+RUN chmod +x /home/svcp
 
-# copy licenses
-RUN mkdir /licenses
-COPY LICENSE /licenses
+WORKDIR /home
 
-# set entrypoint
-ENTRYPOINT ["/usr/local/bin/sidecar-injector"]
-
-# switch to non-root user
-USER ${USER_UID}
+CMD /home/svcp

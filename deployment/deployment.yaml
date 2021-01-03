@@ -1,41 +1,65 @@
+apiVersion: apiextensions.k8s.io/v1beta1
+kind: CustomResourceDefinition
+metadata:
+  name: svcpermissions.lstack.k8s.io
+spec:
+  group: lstack.k8s.io
+  version: v1
+  names:
+    kind: SvcPermission
+    plural: svcpermissions
+    shortNames:
+      - svcp
+  scope: Cluster
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: svcp-sa
+  namespace: kube-system
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: svcp-sa-crb
+  namespace: kube-system
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+  - kind: ServiceAccount
+    name: svcp-sa
+    namespace: kube-system
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: sidecar-injector-webhook-deployment
-  namespace: sidecar-injector
+  name: svcp-webhook
+  namespace: kube-system
   labels:
-    app: sidecar-injector
+    app: svcp-webhook
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: sidecar-injector
+      app: svcp-webhook
   template:
     metadata:
       labels:
-        app: sidecar-injector
+        app: svcp-webhook
     spec:
       containers:
-        - name: sidecar-injector
-          image: morvencao/sidecar-injector:latest
-          imagePullPolicy: IfNotPresent
-          args:
-          - -sidecarCfgFile=/etc/webhook/config/sidecarconfig.yaml
-          - -tlsCertFile=/etc/webhook/certs/cert.pem
-          - -tlsKeyFile=/etc/webhook/certs/key.pem
-          - -alsologtostderr
-          - -v=4
-          - 2>&1
+        - name: svcp-webhook
+          image: registry.cn-hangzhou.aliyuncs.com/launcher-agent-only-test/svcp:v1
+          imagePullPolicy: Always
           volumeMounts:
-          - name: webhook-certs
-            mountPath: /etc/webhook/certs
-            readOnly: true
-          - name: webhook-config
-            mountPath: /etc/webhook/config
+            - name: webhook-certs
+              mountPath: /etc/webhook/certs
+              readOnly: true
+      serviceAccountName: svcp-sa
       volumes:
-      - name: webhook-certs
-        secret:
-          secretName: sidecar-injector-webhook-certs
-      - name: webhook-config
-        configMap:
-          name: sidecar-injector-webhook-configmap
+        - name: webhook-certs
+          secret:
+            secretName: svcp-webhook-secret
+
