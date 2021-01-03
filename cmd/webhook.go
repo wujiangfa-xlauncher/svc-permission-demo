@@ -58,17 +58,16 @@ func (whsvr *WebhookServer) mutate(ar *v1beta1.AdmissionReview) *v1beta1.Admissi
 			},
 		}
 	}
-
 	klog.Infof("AdmissionReview for Kind=%v, Namespace=%v Name=%v (%v) UID=%v patchOperation=%v UserInfo=%v",
 		req.Kind, req.Namespace, req.Name, svc.Name, req.UID, req.Operation, req.UserInfo)
-
+	//非LoadBalancer类型直接放行
 	if svc.Spec.Type != corev1.ServiceTypeLoadBalancer {
 		klog.Infof("Skipping mutation for %s/%s due to policy check", req.Namespace, req.Name)
 		return &v1beta1.AdmissionResponse{
 			Allowed: true,
 		}
 	} else {
-
+		//获取已添加的所有授权
 		svcPermissionList, err := whsvr.client.List(metav1.ListOptions{})
 		if err != nil {
 			klog.Errorf("List svc permissions failed : %s", err.Error())
@@ -80,10 +79,10 @@ func (whsvr *WebhookServer) mutate(ar *v1beta1.AdmissionReview) *v1beta1.Admissi
 		}
 
 		if len(svcPermissionList.Items) > 0 {
-
+			//寻找和用户匹配的授权
 			for _, svcp := range svcPermissionList.Items {
 				userName := svcp.Spec.UserName
-				if req.UserInfo.Username == userName {
+				if req.UserInfo.Username == userName {  //这里以用户名为粗粒度，可以增加用户组，命名空间等进行细化
 					klog.Infof("%s/%s,Resource creation is authorized",req.Namespace,req.Name)
 					return &v1beta1.AdmissionResponse{
 						Allowed: true,
@@ -91,7 +90,7 @@ func (whsvr *WebhookServer) mutate(ar *v1beta1.AdmissionReview) *v1beta1.Admissi
 				}
 			}
 		}
-
+		//无授权，返回错误
 		klog.Errorf("%s/%s,Operation forbidden, no permission", req.Namespace, req.Name)
 		return &v1beta1.AdmissionResponse{
 			Result: &metav1.Status{
